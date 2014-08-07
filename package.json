@@ -1,0 +1,12 @@
+{
+    "name": "toendering.advanced_new_file",
+    "title": "Advanced New File",
+    "description": "File creation plugin inspired by Sublime-AdvancedNewFile",
+    "homepage": "https://github.com/janus-toendering/brackets-advanced-new-file",
+    "version": "0.1.0",
+    "author": "Janus Tøndering <janus@toendering.dk> (https://github.com/janus-toendering/)",
+    "license": "MIT",
+    "engines": {
+        "brackets": ">= 0.42"
+    }
+}
