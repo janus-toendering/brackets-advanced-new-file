@@ -1,7 +1,7 @@
 /**
  * 
  * @author Janus Tøndering <janus@toendering.dk>
- * @license BSD-3-CLAUSE
+ * @license MIT
  */
 
 /*jslint white: true, vars: true, node: true, nomen: true */
