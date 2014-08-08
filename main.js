@@ -35,6 +35,11 @@ define(function(require, exports, module) {
         return promise;
     }
     
+    /**
+     * Implementation of "mkdir -p" unix command
+     * @param {string} path
+     * @returns {jQuery.Deferred}
+     */
     function mkdirp(path)
     {
         var dir = FileSystem.getDirectoryForPath(path);
@@ -62,6 +67,11 @@ define(function(require, exports, module) {
         return promise;
     }
     
+    /**
+     * Creates a new empty file (will truncate existing files)
+     * @param {File} file
+     * @returns {jQuery.Deferred}
+     */
     function createEmptyFile(file)
     {
         var promise = $.Deferred();
@@ -71,40 +81,52 @@ define(function(require, exports, module) {
         });
         return promise;
     }
+
+    /**
+     * Open file in brackets
+     * @param {File} file
+     * @returns {jQuery.Deferred}
+     */
+    function addFileToWorkingSet(file)
+    {
+        return CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET, {fullPath: file.fullPath});
+    }
     
+    /**
+     * Open file in brackets if it exists.
+     * @param {File} file
+     * @returns {jQuery.Deferred} promise that is resolved if found, rejected otherwise
+     */
     function tryOpenExistingFile(file)
     {
         var promise = $.Deferred();
         file.exists(function(err, exists){
             if(!err && exists)
             {
-                return CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET, {fullPath: file.fullPath});
+                return addFileToWorkingSet(file);
             }
             promise.reject();
         });
         return promise;
     }
     
+    /**
+     * Create filename if it doesn't exist, opens it otherwise
+     * @param {string} filename
+     */
     function createNewFile(filename)
     {
         var basePath = ProjectManager.getProjectRoot().fullPath;
         var file = FileSystem.getFileForPath(basePath + "/" + filename);
         var dir = FileUtils.getDirectoryPath(file.fullPath);
 
-        // TODO - Don't overwrite existing files
         tryOpenExistingFile(file)
             .then(function(){ panel.close(); })
             .fail(function(){
                 mkdirp(dir)
-                    .then(function(){
-                        return createEmptyFile(file);
-                    })
-                    .then(function(){
-                        return CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET, {fullPath: file.fullPath});
-                    })
-                    .always(function(){
-                        panel.close();
-                    })
+                    .then(function()   { return createEmptyFile(file); })
+                    .then(function()   { return addFileToWorkingSet(file); })
+                    .always(function() { panel.close(); })
                     .fail(function(err){
                         Dialogs.showModalDialog(DefaultDialogs.DIALOG_ID_ERROR, "Error", err);
                     });
