@@ -5,13 +5,14 @@
  */
 
 /*jslint white: true, vars: true, node: true, nomen: true */
-/*global define,brackets,$*/
+/*global define,brackets,$,appshell*/
 
 define(function(require, exports, module) {
     "use strict";
     
     var CommandManager = brackets.getModule("command/CommandManager"),
         Commands = brackets.getModule("command/Commands"),
+        Menus = brackets.getModule("command/Menus"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         ModalBar = brackets.getModule("widgets/ModalBar"),
         FileUtils = brackets.getModule("file/FileUtils"),
@@ -19,11 +20,20 @@ define(function(require, exports, module) {
         ProjectManager = brackets.getModule("project/ProjectManager"),
         Dialogs = brackets.getModule("widgets/Dialogs"),
         DefaultDialogs = brackets.getModule("widgets/DefaultDialogs"),
+        PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
         AppInit = brackets.getModule("utils/AppInit");
-    
+
     var html = "<div align='right'><input type='text' autocomplete='off' id='advancedNewFile' placeholder='Enter new filename\u2026' style='width: 30em'></div>";
 
     var panel;
+
+    // Commands
+    var NEW_FILE_EXECUTE = "toendering.advanced_new_file.newFile";
+
+    // define preferences
+    var prefs = PreferencesManager.getExtensionPrefs("brackets-advanced-new-file");
+    prefs.definePreference("shortcut", "string", "");
+    prefs.definePreference("hideMenuItem", "boolean", false);
 
     function mkdir(dir)
     {
@@ -152,9 +162,29 @@ define(function(require, exports, module) {
         });
     }
     
+    function getShortcutString(platform)
+    {
+        return prefs.get("shortcut") || "Ctrl-Shift-N";
+    }
+    
+    function registerKeyBindings()
+    {
+        KeyBindingManager.addBinding(NEW_FILE_EXECUTE, { key: getShortcutString() });
+    }
+    
+    function addMenuItems()
+    {
+        if(!prefs.get("hideMenuItem"))
+        {
+            var menu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
+            menu.addMenuItem(NEW_FILE_EXECUTE, null, Menus.AFTER, Commands.FILE_NEW_UNTITLED);
+        }
+    }
+    
     AppInit.appReady(function(){
-        var NEW_FILE_EXECUTE = "toendering.advanced_new_file.newFile";
-        CommandManager.register("Create new file", NEW_FILE_EXECUTE,openModalBar);
-        KeyBindingManager.addBinding(NEW_FILE_EXECUTE, { key: "Opt-Alt-N" });
+        CommandManager.register("Advanced New File", NEW_FILE_EXECUTE,openModalBar);
+
+        registerKeyBindings();
+        addMenuItems();
     });
 });
