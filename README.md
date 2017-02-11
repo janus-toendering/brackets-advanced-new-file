@@ -1,5 +1,7 @@
 # Advanced New File (Brackets plugin)
 
+*This repository is no longer being maintained as I no longer use the Brackets editor.*
+
 File creation plugin for [Adobe Brackets](https://github.com/adobe/brackets) inspired by
 [AdvancedNewFile](https://github.com/skuroda/Sublime-AdvancedNewFile) 
 for SublimeText.
